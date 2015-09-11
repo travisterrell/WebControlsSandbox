@@ -1,0 +1,51 @@
+﻿@{
+    ViewBag.Title = "Typeahead";
+}
+
+<h2>Typeahead</h2>
+<br />
+<form>
+    <label for="clientSearch">Select a Client</label>
+    <br />
+    <input id="clientSearch" class="typeahead" type="text" placeholder="Clients" autocomplete="off" />
+    <br />
+    <br />
+    <label for="idField">Selected Client's Id:</label>
+    <br />
+    <input id="idField" class="typeahead" type="text" placeholder="Id (Ego?) (Superego?)" value="" disabled />
+</form>
+
+<script src="~/Scripts/jquery-1.10.2.js"></script>
+<script src="~/Scripts/typeahead.bundle.js"></script>
+
+<script>
+    $(function () {
+
+        var clients = new Bloodhound({
+            datumTokenizer: Bloodhound.tokenizers.obj.whitespace('ClientName'),
+            queryTokenizer: Bloodhound.tokenizers.whitespace,
+            remote: {
+                url: '../GetClients?q=%QUERY',
+                wildcard: '%QUERY'
+            }
+        });
+
+        clients.initialize();
+
+        $('#clientSearch').typeahead({
+            hint: true,
+            highlight: true,
+            minLength: 1,
+            matcher: function () { return true; }
+        }, {
+            name: 'clients',
+            displayKey: 'ClientName',
+            source: clients.ttAdapter()
+        })
+
+            .on("typeahead:select", function (obj, client) {
+                $('#idField').val(JSON.stringify(client.ClientId));
+            });
+    });
+
+</script>

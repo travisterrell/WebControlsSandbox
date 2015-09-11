@@ -1,0 +1,61 @@
+﻿<h2>Create AdTag</h2>
+<br />
+<form>
+    <label for="clientSearch">Select a Client</label>
+    <br />
+    <input id="clientSearch" type="text" class="typeahead" />
+    <div id="selectedClient"></div>
+</form>
+
+<script src="~/Scripts/jquery-1.10.2.intellisense.js"></script>
+<script src="~/Scripts/jquery-1.10.2.js"></script>
+<script src="~/Scripts/typeahead.bundle.js"></script>
+<script src="~/Scripts/typeahead.jquery.js"></script>
+<script src="~/Scripts/bloodhound.js"></script>
+
+<script>
+    $(function () {
+        var $SelectedClient = $('#selectedClient').hide(),
+             clientList = [
+                 {
+                     "Id": 1,
+                     "Value": "Client 1"
+                 }, {
+                     "Id": 2,
+                     "Value": "Client 2"
+                 }, {
+                     "Id": 3,
+                     "Value": "Client 3"
+                 }, {
+                     "Id": 4,
+                     "Value": "Client 4"
+                 }, {
+                     "Id": 5,
+                     "Value": "Client 5"
+                 }];
+
+        var clients = new Bloodhound({
+            datumTokenizer: Bloodhound.tokenizers.obj.whitespace('Value'),
+            queryTokenizer: Bloodhound.tokenizers.whitespace,
+            local: clientList
+            //,prefetch: '/path/to/prefetch'
+            //,remote: '/path/to/remote' // you can use this for ajax call
+        });
+
+        clients.initialize();
+
+        $('#clientSearch').typeahead({
+            hint: true,
+            highlight: true,
+            minLength: 1
+        }, {
+            name: 'clients',
+            displayKey: 'Value',
+            source: clients.ttAdapter()
+        })
+            .on("typeahead:selected", function (obj, client) {
+                $SelectedClient.html("Selected Client: " + JSON.stringify(client)).show();
+            });
+
+    });
+</script>
