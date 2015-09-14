@@ -1,5 +1,7 @@
-﻿using System.Web.Http.Cors;
+﻿using System.Linq;
+using System.Web.Http.Cors;
 using System.Web.Mvc;
+using TypeAhead.Models;
 using TypeAhead.Services;
 
 namespace TypeAhead.Controllers
@@ -7,7 +9,6 @@ namespace TypeAhead.Controllers
     [EnableCors(origins: "*", headers: "*", methods: "*")]
     public class HomeController : Controller
     {
-        // TypeAhead Methods
         [Route("")]
         public ActionResult Index()
         {
@@ -16,6 +17,9 @@ namespace TypeAhead.Controllers
             return View();
         }
 
+        //*****************************************************************************
+        // TypeAhead Methods
+        //*****************************************************************************
         [Route("Typeahead")]
         public ActionResult Typeahead()
         {
@@ -38,11 +42,41 @@ namespace TypeAhead.Controllers
             return Json(clients, JsonRequestBehavior.AllowGet);
         }
 
-        // End TypeAhead Methods
+        //*****************************************************************************
+        // Cascading Dropdown Methods
+        //*****************************************************************************
+        [Route("GetNewClients")]
+        public JsonResult GetNewClients(string q)
+        {
+            var context = new WebControlsEntities();
 
+            var clients = context.Clients.Where(x => x.Name.ToLower().Contains(q)).ToList();
 
+            return Json(clients.Select(e => new {ClientId = e.Id, ClientName = e.Name}), JsonRequestBehavior.AllowGet);
+        }
 
-        // Begin Cascading Dropdown Methods
+        [Route("GetAdTags")]
+        public JsonResult GetAdTags(int id)
+        {
+            using (var context = new WebControlsEntities())
+            {
+                var adTags = context.AdTags.Where(x => x.ClientId == id).ToList();
+
+                return Json(adTags, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [Route("GetAdUnits")]
+        public JsonResult GetAdUnits(int id)
+        {
+            using (var context = new WebControlsEntities())
+            {
+                var adTags = context.AdUnits.Where(x => x.AdTagId == id).ToList();
+
+                return Json(adTags, JsonRequestBehavior.AllowGet);
+            }
+        }
+
         [Route("Cascade")]
         public ActionResult Cascade()
         {
@@ -51,10 +85,7 @@ namespace TypeAhead.Controllers
             return View();
         }
 
-        //End Cascading Dropdown Methods
-
-
-        #region Utterly Unnecessary Parts
+        #region Utterly Unnecessary Methods
         public ActionResult NothingHere()
         {
             ViewBag.Title = "Move Along";

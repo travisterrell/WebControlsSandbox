@@ -1,0 +1,192 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+      <Schema Namespace="WebControlsModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="AdTags">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" Nullable="false" />
+          <Property Name="Name" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="ClientId" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="AdUnits">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Name" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="AdTagId" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Clients">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Name" Type="varchar" MaxLength="50" Nullable="false" />
+        </EntityType>
+        <Association Name="FK_AdTags_Clients">
+          <End Role="Clients" Type="Self.Clients" Multiplicity="1" />
+          <End Role="AdTags" Type="Self.AdTags" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Clients">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="AdTags">
+              <PropertyRef Name="ClientId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_AdUnits_AdTags">
+          <End Role="AdTags" Type="Self.AdTags" Multiplicity="1" />
+          <End Role="AdUnits" Type="Self.AdUnits" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AdTags">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="AdUnits">
+              <PropertyRef Name="AdTagId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="WebControlsModelStoreContainer">
+          <EntitySet Name="AdTags" EntityType="Self.AdTags" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="AdUnits" EntityType="Self.AdUnits" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Clients" EntityType="Self.Clients" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK_AdTags_Clients" Association="Self.FK_AdTags_Clients">
+            <End Role="Clients" EntitySet="Clients" />
+            <End Role="AdTags" EntitySet="AdTags" />
+          </AssociationSet>
+          <AssociationSet Name="FK_AdUnits_AdTags" Association="Self.FK_AdUnits_AdTags">
+            <End Role="AdTags" EntitySet="AdTags" />
+            <End Role="AdUnits" EntitySet="AdUnits" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="WebControlsModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="AdTag">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" />
+          <Property Name="Name" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="ClientId" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="Client" Relationship="Self.FK_AdTags_Clients" FromRole="AdTags" ToRole="Clients" />
+          <NavigationProperty Name="AdUnits" Relationship="Self.FK_AdUnits_AdTags" FromRole="AdTags" ToRole="AdUnits" />
+        </EntityType>
+        <EntityType Name="AdUnit">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="AdTagId" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="AdTag" Relationship="Self.FK_AdUnits_AdTags" FromRole="AdUnits" ToRole="AdTags" />
+        </EntityType>
+        <EntityType Name="Client">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <NavigationProperty Name="AdTags" Relationship="Self.FK_AdTags_Clients" FromRole="Clients" ToRole="AdTags" />
+        </EntityType>
+        <Association Name="FK_AdTags_Clients">
+          <End Role="Clients" Type="Self.Client" Multiplicity="1" />
+          <End Role="AdTags" Type="Self.AdTag" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Clients">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="AdTags">
+              <PropertyRef Name="ClientId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_AdUnits_AdTags">
+          <End Role="AdTags" Type="Self.AdTag" Multiplicity="1" />
+          <End Role="AdUnits" Type="Self.AdUnit" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AdTags">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="AdUnits">
+              <PropertyRef Name="AdTagId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="WebControlsEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="AdTags" EntityType="Self.AdTag" />
+          <EntitySet Name="AdUnits" EntityType="Self.AdUnit" />
+          <EntitySet Name="Clients" EntityType="Self.Client" />
+          <AssociationSet Name="FK_AdTags_Clients" Association="Self.FK_AdTags_Clients">
+            <End Role="Clients" EntitySet="Clients" />
+            <End Role="AdTags" EntitySet="AdTags" />
+          </AssociationSet>
+          <AssociationSet Name="FK_AdUnits_AdTags" Association="Self.FK_AdUnits_AdTags">
+            <End Role="AdTags" EntitySet="AdTags" />
+            <End Role="AdUnits" EntitySet="AdUnits" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="WebControlsModelStoreContainer" CdmEntityContainer="WebControlsEntities">
+          <EntitySetMapping Name="AdTags">
+            <EntityTypeMapping TypeName="WebControlsModel.AdTag">
+              <MappingFragment StoreEntitySet="AdTags">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="ClientId" ColumnName="ClientId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="AdUnits">
+            <EntityTypeMapping TypeName="WebControlsModel.AdUnit">
+              <MappingFragment StoreEntitySet="AdUnits">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="AdTagId" ColumnName="AdTagId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Clients">
+            <EntityTypeMapping TypeName="WebControlsModel.Client">
+              <MappingFragment StoreEntitySet="Clients">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

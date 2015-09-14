@@ -19,9 +19,9 @@
 <script src="~/Scripts/typeahead.bundle.js"></script>
 
 <script>
-    $(function () {
 
-        var clients = new Bloodhound({
+    $(function () {
+    var clients = new Bloodhound({
             datumTokenizer: Bloodhound.tokenizers.obj.whitespace('ClientName'),
             queryTokenizer: Bloodhound.tokenizers.whitespace,
             remote: {

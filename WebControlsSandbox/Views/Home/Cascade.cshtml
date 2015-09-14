@@ -1,14 +1,116 @@
-﻿
+﻿@using TypeAhead.Models
+@model TypeAhead.Models.WebControlsEntities
+
 @{
     ViewBag.Title = "Cascading Dropdown Sandbox";
 }
 
 <h2>Cascading Dropdown</h2>
 
-<p>
-    Cascading Dropdown example will go here.
-    <br />
-    <br />
-    Travis:  Be sure to finish mapping out the logic in OneNote before getting in much deeper.
-</p>
+@*<fieldset>
+        @Html.LabelFor(m => m.Clients)
+        @Html.DropDownListFor(m => m.Clients, ViewModel.GetClients(), "Select one")
+    </fieldset>*@
 
+<fieldset>
+    @Html.LabelFor(m => m.Clients)
+    @Html.TextBoxFor(m => m.Clients, new { @autocomplete = "off" , @class="typeahead"})
+</fieldset>
+
+<fieldset>
+    @Html.LabelFor(m => m.AdTags)
+    @Html.DropDownListFor(m => m.AdTags, new List<SelectListItem>())
+
+</fieldset>
+
+<fieldset>
+    @Html.LabelFor(m => m.AdUnits)
+    @Html.DropDownListFor(m => m.AdUnits, new List<SelectListItem>())
+</fieldset>
+
+
+<script src="~/Scripts/typeahead.bundle.min.js"></script>
+
+<script>
+    $(function () {
+        "use strict";
+        var clients = new Bloodhound({
+            datumTokenizer: Bloodhound.tokenizers.obj.whitespace('ClientName'),
+            queryTokenizer: Bloodhound.tokenizers.whitespace,
+            remote: {
+                url: '../GetNewClients?q=%QUERY',
+                wildcard: '%QUERY'
+            }
+        });
+
+        clients.initialize();
+
+        $('#Clients').typeahead({
+            hint: true,
+            limit: 10,
+            highlight: true,
+            minLength: 1,
+            matcher: function () { return true; }
+        }, {
+            name: 'Clients',
+            displayKey: 'ClientName',
+            source: clients.ttAdapter()
+        })
+            .on("typeahead:select", function (obj, client) {
+                $('#idField').val(JSON.stringify(client.ClientId));
+            });
+    });
+
+</script>
+
+
+<script type="text/javascript">
+
+    function selectFromAjax(url, formData, target) {
+        $(target).html("");
+        if (formData.id) {
+            $.ajax({
+                type: 'POST',
+                url: url,
+                data: formData,
+                success: function (data) {
+                    if (data) {
+                        $(target).html("<option>Select one</option>");
+                        $(data.items).each(function () {
+                            $(target).append($('<option></option>').attr("value", this.Value).text(this.Text));
+                        });
+                        $(target).change();
+                    }
+                },
+                dataType: 'json'
+            });
+        }
+        else {
+            $(target).change();
+        }
+    }
+
+    $('#AdTags').attr('disabled', true);
+    var selector = {
+        client: "select#@Html.IdFor(m => m.Clients)",
+        adTag: "select#@Html.IdFor(m => m.AdTags)"
+    }
+
+    $(selector.client).change(function () {
+        selectFromAjax('@Url.Action("GetAdTags", "Home")', { id: $(this).find("option:selected").val() }, $(selector.adTag));
+        $('#AdTags').attr('disabled', false);
+    });
+
+
+    $('#AdUnits').attr('disabled', true);
+    var selector = {
+        adTag: "select#@Html.IdFor(m => m.AdTags)",
+        adUnit: "select#@Html.IdFor(m => m.AdUnits)"
+    }
+
+    $(selector.adTag).change(function () {
+        selectFromAjax('@Url.Action("GetAdUnits", "Home")', { id: $(this).find("option:selected").val() }, $(selector.adUnit));
+        $('#AdUnits').attr('disabled', false);
+    });
+
+</script>
