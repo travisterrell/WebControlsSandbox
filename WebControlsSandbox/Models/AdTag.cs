@@ -24,8 +24,8 @@ namespace TypeAhead.Models
         public string Name { get; set; }
         public int ClientId { get; set; }
     
-        public virtual Client Client { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<AdUnit> AdUnits { get; set; }
+        public virtual Client Client { get; set; }
     }
 }

@@ -8,8 +8,8 @@
         <EntityTypeShape EntityType="WebControlsModel.AdTag" Width="1.5" PointX="3" PointY="0.875" IsExpanded="true" />
         <EntityTypeShape EntityType="WebControlsModel.AdUnit" Width="1.5" PointX="5.25" PointY="1" IsExpanded="true" />
         <EntityTypeShape EntityType="WebControlsModel.Client" Width="1.5" PointX="0.75" PointY="1.125" IsExpanded="true" />
-        <AssociationConnector Association="WebControlsModel.FK_AdTags_Clients" ManuallyRouted="false" />
         <AssociationConnector Association="WebControlsModel.FK_AdUnits_AdTags" ManuallyRouted="false" />
+        <AssociationConnector Association="WebControlsModel.FK_AdTags_Clients" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

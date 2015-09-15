@@ -1,4 +1,5 @@
-﻿using System.Web.Http.Cors;
+﻿using System.Linq;
+using System.Web.Http.Cors;
 using System.Web.Mvc;
 using TypeAhead.Models;
 using TypeAhead.Services;
@@ -47,9 +48,13 @@ namespace TypeAhead.Controllers
         [Route("GetNewClients")]
         public JsonResult GetNewClients(string q)
         {
-            var clients = ViewModel.GetClients();
+            var clients = ViewModel.GetClients(q);
 
-            return Json(clients, JsonRequestBehavior.AllowGet);
+            return Json(clients.Select(c => new Client
+            {
+                Id = c.Id,
+                Name = c.Name
+            }), JsonRequestBehavior.AllowGet);
         }
 
         [Route("GetAdTags")]
