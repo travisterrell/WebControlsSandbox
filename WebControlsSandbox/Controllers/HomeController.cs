@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using System.Web.Http.Cors;
+﻿using System.Web.Http.Cors;
 using System.Web.Mvc;
 using TypeAhead.Models;
 using TypeAhead.Services;
@@ -48,33 +47,25 @@ namespace TypeAhead.Controllers
         [Route("GetNewClients")]
         public JsonResult GetNewClients(string q)
         {
-            var context = new WebControlsEntities();
+            var clients = ViewModel.GetClients();
 
-            var clients = context.Clients.Where(x => x.Name.ToLower().Contains(q)).ToList();
-
-            return Json(clients.Select(e => new {ClientId = e.Id, ClientName = e.Name}), JsonRequestBehavior.AllowGet);
+            return Json(clients, JsonRequestBehavior.AllowGet);
         }
 
         [Route("GetAdTags")]
         public JsonResult GetAdTags(int id)
         {
-            using (var context = new WebControlsEntities())
-            {
-                var adTags = context.AdTags.Where(x => x.ClientId == id).ToList();
+            var adTags = new { items = ViewModel.GetAdTags(id) };
 
-                return Json(adTags, JsonRequestBehavior.AllowGet);
-            }
+            return Json(adTags, JsonRequestBehavior.AllowGet);
         }
 
         [Route("GetAdUnits")]
         public JsonResult GetAdUnits(int id)
         {
-            using (var context = new WebControlsEntities())
-            {
-                var adTags = context.AdUnits.Where(x => x.AdTagId == id).ToList();
+            var adUnits = new { items = ViewModel.GetAdUnits(id) };
 
-                return Json(adTags, JsonRequestBehavior.AllowGet);
-            }
+            return Json(adUnits, JsonRequestBehavior.AllowGet);
         }
 
         [Route("Cascade")]

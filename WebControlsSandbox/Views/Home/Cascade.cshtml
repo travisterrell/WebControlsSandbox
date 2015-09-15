@@ -7,15 +7,15 @@
 
 <h2>Cascading Dropdown</h2>
 
-@*<fieldset>
-        @Html.LabelFor(m => m.Clients)
-        @Html.DropDownListFor(m => m.Clients, ViewModel.GetClients(), "Select one")
-    </fieldset>*@
-
 <fieldset>
+        @Html.LabelFor(m => m.Clients)
+        @Html.DropDownListFor(m => m.Clients, ViewModel.GetClients())
+    </fieldset>
+
+@*<fieldset>
     @Html.LabelFor(m => m.Clients)
     @Html.TextBoxFor(m => m.Clients, new { @autocomplete = "off" , @class="typeahead"})
-</fieldset>
+</fieldset>*@
 
 <fieldset>
     @Html.LabelFor(m => m.AdTags)
@@ -29,9 +29,9 @@
 </fieldset>
 
 
-<script src="~/Scripts/typeahead.bundle.min.js"></script>
+@*<script src="~/Scripts/typeahead.bundle.min.js"></script>*@
 
-<script>
+@*<script>
     $(function () {
         "use strict";
         var clients = new Bloodhound({
@@ -61,7 +61,7 @@
             });
     });
 
-</script>
+</script>*@
 
 
 <script type="text/javascript">
@@ -73,9 +73,8 @@
                 type: 'POST',
                 url: url,
                 data: formData,
-                success: function (data) {
+                success: function (data, textStatus) {
                     if (data) {
-                        $(target).html("<option>Select one</option>");
                         $(data.items).each(function () {
                             $(target).append($('<option></option>').attr("value", this.Value).text(this.Text));
                         });
