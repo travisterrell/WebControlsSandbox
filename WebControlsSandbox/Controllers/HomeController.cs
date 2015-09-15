@@ -58,7 +58,7 @@ namespace TypeAhead.Controllers
         }
 
         [Route("GetAdTags")]
-        public JsonResult GetAdTags(int id)
+        public JsonResult GetAdTags(int? id)
         {
             var adTags = new { items = ViewModel.GetAdTags(id) };
 
@@ -66,7 +66,7 @@ namespace TypeAhead.Controllers
         }
 
         [Route("GetAdUnits")]
-        public JsonResult GetAdUnits(int id)
+        public JsonResult GetAdUnits(int? id)
         {
             var adUnits = new { items = ViewModel.GetAdUnits(id) };
 

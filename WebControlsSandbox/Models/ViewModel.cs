@@ -24,7 +24,7 @@ namespace TypeAhead.Models
             }
         }
 
-        public static IEnumerable<SelectListItem> GetAdTags(int clientId)
+        public static IEnumerable<SelectListItem> GetAdTags(int? clientId)
         {
             using (var context = new WebControlsEntities())
             {
@@ -32,7 +32,7 @@ namespace TypeAhead.Models
             }
         }
 
-        public static IEnumerable<SelectListItem> GetAdUnits(int adTagId)
+        public static IEnumerable<SelectListItem> GetAdUnits(int? adTagId)
         {
             using (var context = new WebControlsEntities())
             {
