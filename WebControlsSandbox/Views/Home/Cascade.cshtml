@@ -8,21 +8,17 @@
 <h2>Cascading Dropdown</h2>
 
 <fieldset>
-    @*@Html.LabelFor(m => m.Clients)*@
     @Html.TextBoxFor(m => m.Clients, new { @autocomplete = "off", @class = "typeahead", @placeholder = "Client" })
 </fieldset>
 
-<input id="idField" class="typeahead" type="text" value="" disabled />
-
+<input id="idField" class="typeahead" type="hidden" value="" disabled />
 
 <fieldset>
-    @*@Html.LabelFor(m => m.AdTags)*@
     @Html.DropDownListFor(m => m.AdTags, new List<SelectListItem>(), "AdTags")
 
 </fieldset>
 
 <fieldset>
-    @*@Html.LabelFor(m => m.AdUnits)*@
     @Html.DropDownListFor(m => m.AdUnits, new List<SelectListItem>(), "AdUnits")
 </fieldset>
 
@@ -46,6 +42,7 @@
                     data: formData,
                     success: function (data, textStatus) {
                         if (data) {
+                            $(target).append($('<option></option>').attr("value", "").text("Select one"));
                             $(data.items).each(function () {
                                 $(target).append($('<option></option>').attr("value", this.Value).text(this.Text));
                             });
@@ -60,13 +57,12 @@
         }
 
 
-
+        
         $('#AdTags').attr('disabled', true);
         var selector = {
             client: "select#@Html.IdFor(m => m.Clients)",
             adTag: "select#@Html.IdFor(m => m.AdTags)"
         }
-
         function getAdTags(id) {
             selectFromAjax('@Url.Action("GetAdTags", "Home")', { id: id }, $(selector.adTag));
             $('#AdTags').attr('disabled', false);
@@ -75,13 +71,12 @@
 
 
         $('#AdUnits').attr('disabled', true);
-        var selector = {
+        var selector1 = {
             adTag: "select#@Html.IdFor(m => m.AdTags)",
             adUnit: "select#@Html.IdFor(m => m.AdUnits)"
         }
-
-        $(selector.adTag).click(function () {
-            selectFromAjax('@Url.Action("GetAdUnits", "Home")', { id: $(this).find("option:selected").val() }, $(selector.adUnit));
+        $(selector1.adTag).click(function () {
+            selectFromAjax('@Url.Action("GetAdUnits", "Home")', { id: $(this).find("option:selected").val() }, $(selector1.adUnit));
             $('#AdUnits').attr('disabled', false);
         });
 
