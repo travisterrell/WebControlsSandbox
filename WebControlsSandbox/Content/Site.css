@@ -47,7 +47,7 @@ textarea {
     color: #999
 }
 .tt-menu {
-    width: 300px;
+    width: 200px;
     margin-top: 12px;
     padding: 8px 0;
     background-color: #fff;
@@ -64,8 +64,8 @@ textarea {
 }
 .tt-suggestion {
     padding: 3px 20px;
-    font-size: 18px;
-    line-height: 24px;
+    /*font-size: 18px;
+    line-height: 24px;*/
 }
 .tt-suggestion.tt-cursor {
     color: #fff;
@@ -82,4 +82,8 @@ textarea {
 #scrollable-dropdown-menu .tt-dropdown-menu {
   max-height: 150px;
   overflow-y: auto;
+}
+
+.tt-spinner {
+    background: url('./Images/loading-small.gif') no-repeat right center;
 }

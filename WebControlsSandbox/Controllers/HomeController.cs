@@ -81,6 +81,14 @@ namespace TypeAhead.Controllers
             return View();
         }
 
+        [Route("CascadeKnockout")]
+        public ActionResult CascadeKnockout()
+        {
+            ViewBag.Title = "Cascading Dropdown via KnockoutJS";
+
+            return View();
+        }
+
         #region Utterly Unnecessary Methods
         public ActionResult NothingHere()
         {

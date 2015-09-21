@@ -1,5 +1,5 @@
 ﻿@{
-    ViewBag.Title = "Typeahead";
+    ViewBag.Title = "Typeahead - Web Controls Sandbox";
 }
 
 <h2>Typeahead</h2>
@@ -21,7 +21,7 @@
 <script>
 
     $(function () {
-    var clients = new Bloodhound({
+        var clients = new Bloodhound({
             datumTokenizer: Bloodhound.tokenizers.obj.whitespace('ClientName'),
             queryTokenizer: Bloodhound.tokenizers.whitespace,
             remote: {
@@ -42,9 +42,27 @@
             displayKey: 'ClientName',
             source: clients.ttAdapter()
         })
-
-            .on("typeahead:select", function (obj, client) {
+            .on('typeahead:asyncrequest', function () {
+                $('.tt-input').addClass('tt-spinner');
+            })
+            .on('typeahead:asynccancel typeahead:asyncreceive', function () {
+                $('.tt-input').removeClass('tt-spinner');
+            })
+            .on('typeahead:select', function (obj, client) {
                 $('#idField').val(JSON.stringify(client.ClientId));
+            })
+            .on('blur', function () {
+                if ($('#clientSearch').val() === "") {
+                    $('#idField').val("");
+                }
+            })
+            .on('keypress', function (event) {
+                var keycode = (event.keyCode ? event.keyCode : event.which);
+                if (keycode === '13') {
+                    if ($('#clientSearch').val() === "") {
+                        $('#idField').val("");
+                    }
+                }
             });
     });
 

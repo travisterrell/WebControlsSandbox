@@ -2,16 +2,17 @@
 @model TypeAhead.Models.WebControlsEntities
 
 @{
-    ViewBag.Title = "Cascading Dropdown Sandbox";
+    ViewBag.Title = "Cascading Dropdown - Web Controls Sandbox";
 }
 
 <h2>Cascading Dropdown</h2>
 
 <fieldset>
     @Html.TextBoxFor(m => m.Clients, new { @autocomplete = "off", @class = "typeahead", @placeholder = "Client" })
+    @Html.TextBoxFor(m => m.Clients, new { @autocomplete = "off", @class = "typeahead", @placeholder = "Client" })
 </fieldset>
 
-<input id="idField" class="typeahead" type="hidden" value="" disabled />
+<input id="idField" class="typeahead" type="text" value="" disabled />
 
 <fieldset>
     @Html.DropDownListFor(m => m.AdTags, new List<SelectListItem>(), "AdTags")
@@ -37,7 +38,7 @@
             $(target).html("");
             if (formData.id) {
                 $.ajax({
-                    type: 'POST',
+                    type: 'GET',
                     url: url,
                     data: formData,
                     success: function (data, textStatus) {
@@ -57,7 +58,7 @@
         }
 
 
-        
+
         $('#AdTags').attr('disabled', true);
         var selector = {
             client: "select#@Html.IdFor(m => m.Clients)",
@@ -111,8 +112,27 @@
             displayKey: 'Name',
             source: clients.ttAdapter()
         })
+            .on('typeahead:asyncrequest', function () {
+                $('.tt-input').addClass('tt-spinner');
+            })
+            .on('typeahead:asynccancel typeahead:asyncreceive', function () {
+                $('.tt-input').removeClass('tt-spinner');
+            })
             .on("typeahead:select", function (obj, client) {
                 setHiddenValue(client.Id, getAdTags);
+            })
+            .on('blur', function () {
+                if ($('#Clients').val() === "") {
+                    $('#idField').val("");
+                }
+            })
+            .on('keypress', function (event) {
+                var keycode = (event.keyCode ? event.keyCode : event.which);
+                if (keycode === '13') {
+                    if ($('#Clients').val() === "") {
+                        $('#idField').val("");
+                    }
+                }
             });
     });
 </script>
