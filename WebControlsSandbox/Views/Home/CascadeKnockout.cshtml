@@ -11,22 +11,22 @@
     @Html.TextBoxFor(m => m.Clients, new { @autocomplete = "off", @class = "typeahead", @placeholder = "Client" })
 </fieldset>
 
-<input data-bind="value: clientId " id="idField" class="typeahead" type="hidden" value="" disabled />
+<input data-bind="text: selectedClientId " id="selectedClientId" class="typeahead" type="text" value="" disabled />
 
-<fieldset data-bind="with: clientId">
+<fieldset @*data-bind="with: selectedClientId"*@>
     <select data-bind="
-    options: adTag,
+    options: adTags,
     value: selectedAdTag,
-    optionsText: 'name',
+    optionsText: 'adTag',
     optionsCaption: 'Choose an AdTag',
-    enable: selectedClient"></select>  @*TODO: Determine what should go into "enable:" to make the dropdown enable upon selecting a client.*@
+    enable: selectedClientId"></select>  @*TODO: Determine what should go into "enable:" to make the dropdown enable upon selecting a client.*@
 </fieldset>
 
-<fieldset data-bind="with: selectedAdTag">
+<fieldset @*data-bind="with: selectedAdTag"*@>
     <select data-bind="
     options: adUnits,
     value: selectedAdUnit,
-    optionsText: 'name',
+    optionsText: 'adUnit',
     optionsCaption: 'Choose an AdUnit',
     enable: selectedAdTag"></select>
 </fieldset>
@@ -34,27 +34,39 @@
 
 <script src="~/Scripts/typeahead.bundle.min.js"></script>
 <script src="~/Scripts/knockout-3.3.0.debug.js"></script>
+<script src="~/Scripts/knockout-3.3.0.js"></script>
 
 @***********************************************************************************************@
 @*  Cascading Dropdown Logic                                                                   *@
 @***********************************************************************************************@
-@*<script type="text/javascript">
+<script type="text/javascript">
 
-    var cascade = function () {
-        var self = this;
-        self.clientId = ko.observable; // May need some extra work to get this going.
-        self.selectedAdTag = ko.observable;
-        self.selectedAdUnit = ko.observable;
+    $(function() {
+        var viewModel = function() {
+            var self = this;
+            self.adTags = ko.observableArray([]);
+            self.adUnits = ko.observableArray([]);
+            self.selectedClientId = ko.observable("");
+            self.selectedClientId = ko.observable("");
+            self.selectedAdTag = ko.observable("");
+            self.selectedAdUnit = ko.observable("");
 
+            self.selectedClientId.subscribe(function(newText) {
+                console.log(newText);
+            });
 
-        self.clientId.subscribe(function () {
-            self.selectedAdTag(undefined);
-        });
-    };
+            var getAdTags = $.getJSON('@Url.Action("GetAdTags", "Home")', function(data) {
 
-    ko.applyBindings();
+            });
 
-</script>*@
+            //self.selectedClientId.subscribe(function () {
+            //    self.selectedAdTag(undefined);
+            //});
+        };
+
+        ko.applyBindings(viewModel);
+    });
+</script>
 
 
 
@@ -132,7 +144,7 @@
     clients.initialize();
 
     function setHiddenValue(id, callback) {
-        $('#idField').val(JSON.stringify(id));
+        $('#selectedClientId').val(JSON.stringify(id));
         callback && callback(id);
     }
 
