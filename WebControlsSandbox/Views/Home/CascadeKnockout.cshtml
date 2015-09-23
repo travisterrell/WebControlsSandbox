@@ -11,7 +11,6 @@
     @Html.TextBoxFor(m => m.Clients, new { @autocomplete = "off", @class = "typeahead", @placeholder = "Client" })
 </fieldset>
 
-<input data-bind="text: selectedClientId " id="selectedClientId" class="typeahead" type="text" value="" disabled />
 
 <fieldset @*data-bind="with: selectedClientId"*@>
     <select data-bind="
@@ -31,155 +30,93 @@
     enable: selectedAdTag"></select>
 </fieldset>
 
+The following ClientId came from KO: <span data-bind="text: selectedClientId" type="text"></span>
+<br/>
+<p>...at 1:47 AM</p>
+
 
 <script src="~/Scripts/typeahead.bundle.min.js"></script>
 <script src="~/Scripts/knockout-3.3.0.debug.js"></script>
-<script src="~/Scripts/knockout-3.3.0.js"></script>
 
-@***********************************************************************************************@
-@*  Cascading Dropdown Logic                                                                   *@
-@***********************************************************************************************@
 <script type="text/javascript">
 
-    $(function() {
-        var viewModel = function() {
-            var self = this;
-            self.adTags = ko.observableArray([]);
-            self.adUnits = ko.observableArray([]);
-            self.selectedClientId = ko.observable("");
-            self.selectedClientId = ko.observable("");
-            self.selectedAdTag = ko.observable("");
-            self.selectedAdUnit = ko.observable("");
 
-            self.selectedClientId.subscribe(function(newText) {
+    $(function () {
+        function viewModel() {
+            var self = this;
+            self.adTags = [];
+            self.adUnits = [];
+            self.selectedClientId = ko.observable();
+            self.selectedAdTag = ko.observable();
+            self.selectedAdUnit = ko.observable();
+
+
+            @*
+            Things we may need:
+
+            self.selectedClientId.subscribe(function (newText) {
                 console.log(newText);
             });
 
-            var getAdTags = $.getJSON('@Url.Action("GetAdTags", "Home")', function(data) {
-
+            var getAdTags = $.getJSON('@Url.Action("GetAdTags", "Home")', function (data) {
             });
 
-            //self.selectedClientId.subscribe(function () {
-            //    self.selectedAdTag(undefined);
-            //});
+            // Here's how things are done on the Performance view:
+            var viewModel = ko.mapping.fromJS(@Html.Raw(Json.Encode(Model.AdPerformanceSummary)));*@
+
+
         };
+
+        viewModel = new viewModel();
 
         ko.applyBindings(viewModel);
-    });
-</script>
 
-
-
-<!--#region Old Cascade Logic-->
-@*<script type="text/javascript">
-    $(function() {
-        "use strict";
-
-        function selectFromAjax(url, formData, target) {
-            $(target).html("");
-            if (formData.id) {
-                $.ajax({
-                    type: 'GET',
-                    url: url,
-                    data: formData,
-                    success: function(data, textStatus) {
-                        if (data) {
-                            $(target).append($('<option></option>').attr("value", "").text("Select one"));
-                            $(data.items).each(function() {
-                                $(target).append($('<option></option>').attr("value", this.Value).text(this.Text));
-                            });
-                            $(target).change();
-                        }
-                    },
-                    dataType: 'json'
-                });
-            } else {
-                $(target).change();
-            }
-        }
-
-
-        $('#AdTags').attr('disabled', true);
-        var selector = {
-            client: "select#@Html.IdFor(m => m.Clients)",
-            adTag: "select#@Html.IdFor(m => m.AdTags)"
-        }
-
-        function getAdTags(id) {
-            selectFromAjax('@Url.Action("GetAdTags", "Home")', { id: id }, $(selector.adTag));
-            $('#AdTags').attr('disabled', false);
+        var onUpdated = function ($e, client) {
+            viewModel.selectedClientId(client.Id);
         };
 
-
-        $('#AdUnits').attr('disabled', true);
-        var selector1 = {
-            adTag: "select#@Html.IdFor(m => m.AdTags)",
-            adUnit: "select#@Html.IdFor(m => m.AdUnits)"
-        }
-        $(selector1.adTag).click(function() {
-            selectFromAjax('@Url.Action("GetAdUnits", "Home")', { id: $(this).find("option:selected").val() }, $(selector1.adUnit));
-            $('#AdUnits').attr('disabled', false);
-        });
-    })
-</script>*@
-<!--#endregion-->
-<!--
-
--->
-<!--#region Typeahead Logic-->
-@***********************************************************************************************@
-@*  Typeahead Logic                                                                            *@
-@***********************************************************************************************@
-<script type="text/javascript">
-
-    var clients = new Bloodhound({
-        datumTokenizer: Bloodhound.tokenizers.obj.whitespace('Name'),
-        queryTokenizer: Bloodhound.tokenizers.whitespace,
-        remote: {
-            url: '../GetNewClients?q=%QUERY',
-            wildcard: '%QUERY'
-        }
-    });
-
-    clients.initialize();
-
-    function setHiddenValue(id, callback) {
-        $('#selectedClientId').val(JSON.stringify(id));
-        callback && callback(id);
-    }
-
-    $('#Clients').typeahead({
-        hint: true,
-        limit: 10,
-        highlight: true,
-        minLength: 1,
-        matcher: function () { return true; }
-    }, {
-        name: 'Clients',
-        displayKey: 'Name',
-        source: clients.ttAdapter()
-    })
-        .on('typeahead:asyncrequest', function () {
-            $('.tt-input').addClass('tt-spinner');
-        })
-        .on('typeahead:asynccancel typeahead:asyncreceive', function () {
-            $('.tt-input').removeClass('tt-spinner');
-        })
-        .on("typeahead:select", function (obj, client) {
-            setHiddenValue(client.Id);
-        })
-        .on('blur', function () {
-            if ($('#Clients').val() === "") {
-                $('#idField').val("");
+        var clients = new Bloodhound({
+            datumTokenizer: Bloodhound.tokenizers.obj.whitespace('Name'),
+            queryTokenizer: Bloodhound.tokenizers.whitespace,
+            remote: {
+                url: '../GetNewClients?q=%QUERY',
+                wildcard: '%QUERY'
             }
+        });
+
+        clients.initialize();
+
+        $('#Clients').typeahead({
+            hint: true,
+            limit: 10,
+            highlight: true,
+            minLength: 1,
+            matcher: function () { return true; }
+        }, {
+            name: 'Clients',
+            displayKey: 'Name',
+            source: clients.ttAdapter()
         })
-        .on('keypress', function (event) {
-            var keycode = (event.keyCode ? event.keyCode : event.which);
-            if (keycode === '13') {
+            .on('typeahead:asyncrequest', function () {
+                $('.tt-input').addClass('tt-spinner');
+            })
+            .on('typeahead:asynccancel typeahead:asyncreceive', function () {
+                $('.tt-input').removeClass('tt-spinner');
+            })
+            .on("typeahead:select", onUpdated)
+            .on('blur', function () {
                 if ($('#Clients').val() === "") {
                     $('#idField').val("");
                 }
-            }
-        });
-    </script>
+            })
+            .on('keypress', function (event) {
+                var keycode = (event.keyCode ? event.keyCode : event.which);
+                if (keycode === '13') {
+                    if ($('#Clients').val() === "") {
+                        $('#idField').val("");
+                    }
+                }
+            });
+    });
+</script>
 <!--#endregion-->

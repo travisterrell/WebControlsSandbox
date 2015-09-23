@@ -87,3 +87,7 @@ textarea {
 .tt-spinner {
     background: url('./Images/loading-small.gif') no-repeat right center;
 }
+
+fieldset {
+    padding: 10px 10px 10px 10px
+}
