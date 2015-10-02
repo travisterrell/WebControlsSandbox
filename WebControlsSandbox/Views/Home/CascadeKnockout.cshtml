@@ -71,7 +71,7 @@ The following ClientId came from KO: <span data-bind="text: selectedClientId" ty
 
         ko.applyBindings(viewModel);
 
-        var onUpdated = function ($e, client) {
+        var onUpdated = function (e, client) {
             viewModel.selectedClientId(client.Id);
         };
 

@@ -89,13 +89,19 @@ namespace TypeAhead.Controllers
             return View();
         }
 
-        #region Utterly Unnecessary Methods
+        [Route("CodeEditor")]
+        public ActionResult CodeEditor()
+        {
+            ViewBag.Title = "Online CSS Editor/Beautifier";
+
+            return View();
+        }
+        
         public ActionResult NothingHere()
         {
             ViewBag.Title = "Move Along";
 
             return View();
         }
-        #endregion
     }
 }
