@@ -1,0 +1,28 @@
+﻿@*TODO: Modify this to use KnockoutJS wherever possible.*@
+@*TODO: Modify so that we have a single window, with a button to click to beautify css.*@
+@*TODO: (We may want to make our major changes on a new page, so that we can preserve this version of the page for future reference/use.  Should be easy, since the scripts and css are so modularized.)*@
+
+
+@*Codemirror in-browser code-editor*@
+<script src="~/Scripts/codemirror.js"></script> 
+<script src="~/Scripts/css.js"></script> 
+<link rel="stylesheet" type="text/css" href="~/Content/codemirror.css"/>
+
+@*Contains options from original page that need to be modified.*@
+<script src="~/Scripts/format.js"></script> 
+
+@*Beautification script*@
+<script src="~/Scripts/cssbeautify.js"></script>
+
+
+<h2>CSS Editor and Beautifier</h2>
+
+<div>
+    <h3>Unformatted CSS:</h3>
+    <textarea id="raw" rows="22" autofocus="autofocus" spellcheck="false" onchange='format()' onkeydown='format()'>menu{color:red} navigation{background-color:#333 /* darkgrey */}</textarea>
+</div>
+
+<div>
+    <h3>Beautified CSS:</h3>
+    <textarea id="beautified" rows="22" readonly></textarea>
+</div>

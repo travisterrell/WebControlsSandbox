@@ -207,6 +207,7 @@
     <Content Include="Areas\HelpPage\HelpPage.css" />
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
+    <Content Include="Content\codemirror.css" />
     <Content Include="Content\Images\404.svg" />
     <Content Include="Content\Images\loading-small.gif" />
     <Content Include="Content\Images\loading.gif" />
@@ -256,7 +257,9 @@
     </Content>
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\codemirror.js" />
+    <Content Include="Scripts\css.js" />
     <Content Include="Scripts\cssbeautify.js" />
+    <Content Include="Scripts\format.js" />
     <Content Include="Scripts\jquery-1.10.2.js" />
     <Content Include="Scripts\jquery-1.10.2.min.js" />
     <Content Include="Scripts\knockout-3.3.0.debug.js" />
@@ -289,7 +292,7 @@
     <Content Include="Views\Home\Cascade.cshtml" />
     <Content Include="Views\Home\Typeahead.cshtml" />
     <Content Include="Views\Home\CascadeKnockout.cshtml" />
-    <Content Include="Views\Home\CodeEditor.cshtml" />
+    <Content Include="Views\Home\CSSEditor.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />

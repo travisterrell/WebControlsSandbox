@@ -3,6 +3,7 @@ using System.Web.Http.Cors;
 using System.Web.Mvc;
 using TypeAhead.Models;
 using TypeAhead.Services;
+// ReSharper disable InconsistentNaming
 
 namespace TypeAhead.Controllers
 {
@@ -90,7 +91,7 @@ namespace TypeAhead.Controllers
         }
 
         [Route("CodeEditor")]
-        public ActionResult CodeEditor()
+        public ActionResult CSSEditor()
         {
             ViewBag.Title = "Online CSS Editor/Beautifier";
 
