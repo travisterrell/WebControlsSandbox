@@ -97,11 +97,11 @@ namespace TypeAhead.Controllers
             return View();
         }
         
-        public ActionResult NothingHere()
-        {
-            ViewBag.Title = "Move Along";
+        //public ActionResult NothingHere()
+        //{
+        //    ViewBag.Title = "Move Along";
 
-            return View();
-        }
+        //    return View();
+        //}
     }
 }
