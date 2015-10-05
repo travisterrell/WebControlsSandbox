@@ -90,14 +90,22 @@ namespace TypeAhead.Controllers
             return View();
         }
 
-        [Route("CodeEditor")]
+        [Route("FirstCSSEditor")]
+        public ActionResult FirstCSSEditor()
+        {
+            ViewBag.Title = "Online CSS Editor/Beautifier";
+
+            return View();
+        }
+
+        [Route("CSSEditor")]
         public ActionResult CSSEditor()
         {
             ViewBag.Title = "Online CSS Editor/Beautifier";
 
             return View();
         }
-        
+
         //public ActionResult NothingHere()
         //{
         //    ViewBag.Title = "Move Along";

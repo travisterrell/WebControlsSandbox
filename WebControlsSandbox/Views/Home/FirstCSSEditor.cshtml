@@ -12,11 +12,13 @@
     --When loading rules, beautify before displaying in textarea.
     --When saving, minify the rules before storing in database.*@
 
-@*Contains options from original page that need to be modified.*@
-<script src="~/Scripts/newFormat.js"></script>
+@*Codemirror*@
+<script src="~/Scripts/codemirror.js"></script> 
+<script src="~/Scripts/css.js"></script> 
+<link rel="stylesheet" type="text/css" href="~/Content/codemirror.css"/>
 
-@*TextEditor*@
-<script src="~/Scripts/behave.js"></script>
+@*Contains options from original page that need to be modified.*@
+<script src="~/Scripts/format.js"></script>
 
 @*Beautification script*@
 <script src="~/Scripts/cssbeautify.js"></script>
@@ -26,27 +28,10 @@
 
 <div>
     <h3>Unformatted CSS:</h3>
-    <textarea id="newEditor" rows="22" autofocus="autofocus" spellcheck="false" onchange='format()' onkeydown='format()'>menu{color:red} navigation{background-color:#333 /* darkgrey */}</textarea>
+    <textarea id="raw" rows="22" autofocus="autofocus" spellcheck="false" onchange='format()' onkeydown='format()'>menu{color:red} navigation{background-color:#333 /* darkgrey */}</textarea>
 </div>
 
 <div>
     <h3>Beautified CSS:</h3>
     <textarea id="beautified" rows="22" readonly></textarea>
 </div>
-
-
-@*Behave TextEditor*@
-<script type="text/javascript">
-
-    var editor = new Behave({
-        textarea: document.getElementById('newEditor'),
-        replaceTab: true,
-        softTabs: true,
-        tabSize: 4,
-        autoOpen: true,
-        overwrite: true,
-        autoStrip: true,
-        autoIndent: true
-    });
-
-</script>

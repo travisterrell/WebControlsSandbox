@@ -225,6 +225,7 @@
       <DependentUpon>RandomDataModel.edmx</DependentUpon>
       <LastGenOutput>RandomDataModel.cs</LastGenOutput>
     </Content>
+    <Content Include="Scripts\behave.js" />
     <Content Include="Scripts\bloodhound.js" />
     <Content Include="Scripts\bloodhound.min.js" />
     <Content Include="Scripts\bootstrap.js" />
@@ -266,6 +267,7 @@
     <Content Include="Scripts\knockout-3.3.0.js" />
     <Content Include="Scripts\ko-binding-dump.js" />
     <Content Include="Scripts\modernizr-2.6.2.js" />
+    <Content Include="Scripts\newFormat.js" />
     <Content Include="Scripts\respond.js" />
     <Content Include="Scripts\respond.min.js" />
     <Content Include="Scripts\typeahead.bundle.js" />
@@ -292,7 +294,9 @@
     <Content Include="Views\Home\Cascade.cshtml" />
     <Content Include="Views\Home\Typeahead.cshtml" />
     <Content Include="Views\Home\CascadeKnockout.cshtml" />
-    <Content Include="Views\Home\CSSEditor.cshtml" />
+    <Content Include="Views\Home\FirstCSSEditor.cshtml" />
+    <None Include="Views\Home\CSSEditor.cshtml" />
+    <Content Include="Views\Home\NothingHere.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />

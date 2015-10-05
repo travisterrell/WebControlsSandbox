@@ -1,4 +1,4 @@
-/*global cssbeautify:true, document:true, window:true, CodeMirror: true */
+﻿/*global cssbeautify:true, document:true, window:true, CodeMirror: true */
 
 var editor, viewer, formatId;
 
