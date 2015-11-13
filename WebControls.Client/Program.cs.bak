@@ -1,0 +1,185 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Data.Entity;
+using System.Data.Entity.Infrastructure;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Newtonsoft.Json;
+using TypeAhead.Models;
+
+
+namespace WebControls.Client
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var context = new WebControlsEntities();
+            var adTag = context.AdTags.First(i => i.Id == 1);
+            adTag.Name = "UpdateFromConsole";
+
+
+
+            var newAdTag = new AdTag
+            {
+                Name = "TestAdTag",
+                ClientId = 1
+            };
+
+
+            context.SaveChanges();
+
+            var anotherNewAdTag = new AdTag
+            {
+                Name = "New AdTag",
+                ClientId = 99
+            };
+
+            context.AdTags.Add(anotherNewAdTag);
+
+            var adTagChanged = context.AdTags.First(i => i.Id == 1034);
+            adTagChanged.Name = Guid.NewGuid().ToString();
+            adTagChanged.ClientId = 1;
+            context.Entry(adTagChanged).State = EntityState.Modified;
+
+            //-----------------------------------------------------------------------//
+            // Possible solutions for exception thrown when getting original values for an added object:
+            //    Use a switch or conditionals to avoid asking for OriginalValues when EntityState.Added (or CurrentValues when EntityState.Deleted)
+            //           Cons: This would work, but results in redundant code
+
+            var changeInfoAll = context.ChangeTracker.Entries();
+
+            foreach (var t in changeInfoAll)
+            {
+                if (t.State == EntityState.Added)
+                {
+                    var changeInfo1 = new EntityChanges
+                    {
+                        EntityName = t.Entity.GetType().Name,
+                        ChangeType = t.State,
+                        Original = null,
+                        Current = t.CurrentValues.PropertyNames.ToDictionary(pn => pn, pn => t.CurrentValues[pn])
+                    };
+                }
+            }
+
+            var changeInfo = context.ChangeTracker.Entries()
+                .Where(t => t.State == EntityState.Modified)
+                .Select(t => new
+                {
+                    EntityName = t.Entity.GetType().Name,
+                    ChangeType = t.State,
+                    Original = t.OriginalValues.PropertyNames.ToDictionary(pn => pn, pn => t.OriginalValues[pn]), //This guy throws an exception if "Original" doesn't exist (even if OriginalValues is null-checked)
+                    Current = t.CurrentValues.PropertyNames.ToDictionary(pn => pn, pn => t.CurrentValues[pn])
+                });
+
+            var modifications = new List<Modification>();
+            var modsJson = string.Empty;
+
+            foreach (var i in changeInfo)
+            {
+                foreach (var o in i.Original)
+                {
+                    var key = o.Key;
+                    var originalValue = o.Value.ToString();
+                    object valueAsObject;
+
+                    if (i.Current.TryGetValue(key, out valueAsObject))
+                    {
+                        var currentValue = valueAsObject.ToString();
+
+                        if (currentValue != originalValue)
+                        {
+                            var entry = new Modification
+                            {
+                                PropertyName = key,
+                                OriginalValue = originalValue,
+                                CurrentValue = currentValue
+                            };
+
+                            modifications.Add(entry);
+                        }
+
+                        modsJson = JsonConvert.SerializeObject(modifications);
+                    }
+
+                }
+                var auditEntry = new AuditHistory
+                {
+                    CreateDate = DateTime.UtcNow,
+                    EntityId = Convert.ToInt32(i.Current["Id"]),
+                    EntityName = i.EntityName,
+                    Modifications = modsJson,
+                    ModificationType = i.ChangeType.ToString(),
+                    UserId = 0,
+                    UserName = "UserName"
+                };
+
+                context.AuditHistories.Add(auditEntry);
+                context.SaveChanges();
+            }
+
+
+
+
+
+        }
+    }
+}
+
+
+
+
+//So now we need to manipulate these dictionaries of key-value pairs, so that we can get useful objects to store in our AuditHistory table.
+
+//var testCurrent = changeInfo.Current;
+//var testPrevious = changeInfo.Original;
+
+//foreach (var i in testCurrent)
+//{
+//    var entry = new AuditHistory
+//    {
+//        Current = i.ToString(),
+//    };
+//    context.AuditHistories.Add(entry);
+//}
+
+//var entry = new AuditHistory();
+
+//foreach (var i in changeInfo.Original)
+//{
+//    entry.Original = i.ToString();
+
+//    foreach (var o in changeInfo.Current)
+//    {
+//        entry.Current = o.ToString();
+//    }
+//    context.AuditHistories.Add(entry);
+//}
+
+
+
+
+//foreach (var entry in changeInfo)
+//{
+
+//    var auditHistory = new AuditHistory
+//    {
+//        Current = entry.Current.ToString(),
+//        Original = entry.Original.ToString()
+//    };
+
+//    context.AuditHistories.Add(auditHistory);
+//}
+
+
+
+
+public class ChangePair
+{
+    public string Key { get; set; }
+    public object Original { get; set; }
+    public object Current { get; set; }
+}
