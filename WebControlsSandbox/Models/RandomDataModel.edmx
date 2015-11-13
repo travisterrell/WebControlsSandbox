@@ -21,6 +21,29 @@
           <Property Name="Name" Type="varchar" MaxLength="50" Nullable="false" />
           <Property Name="AdTagId" Type="int" Nullable="false" />
         </EntityType>
+        <EntityType Name="AuditHistory">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="UserId" Type="int" />
+          <Property Name="UserName" Type="varchar" MaxLength="100" />
+          <Property Name="EntityName" Type="varchar" MaxLength="100" />
+          <Property Name="EntityId" Type="int" />
+          <Property Name="ModificationType" Type="varchar" MaxLength="100" />
+          <Property Name="Modifications" Type="varchar(max)" />
+          <Property Name="CreateDate" Type="datetime" />
+        </EntityType>
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'WebControls.dbo.Changes' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="Changes">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Original" Type="varchar(max)" />
+          <Property Name="Current" Type="varchar(max)" />
+        </EntityType>
         <EntityType Name="Clients">
           <Key>
             <PropertyRef Name="Id" />
@@ -55,7 +78,15 @@
         <EntityContainer Name="WebControlsModelStoreContainer">
           <EntitySet Name="AdTags" EntityType="Self.AdTags" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="AdUnits" EntityType="Self.AdUnits" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="AuditHistory" EntityType="Self.AuditHistory" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Clients" EntityType="Self.Clients" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Changes" EntityType="Self.Changes" store:Type="Tables" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+    [Changes].[Id] AS [Id], 
+    [Changes].[Original] AS [Original], 
+    [Changes].[Current] AS [Current]
+    FROM [dbo].[Changes] AS [Changes]</DefiningQuery>
+          </EntitySet>
           <AssociationSet Name="FK_AdTags_Clients" Association="Self.FK_AdTags_Clients">
             <End Role="Clients" EntitySet="Clients" />
             <End Role="AdTags" EntitySet="AdTags" />
@@ -120,6 +151,8 @@
             <End Role="Client" EntitySet="Clients" />
             <End Role="AdTag" EntitySet="AdTags" />
           </AssociationSet>
+          <EntitySet Name="AuditHistories" EntityType="WebControlsModel.AuditHistory" />
+          <EntitySet Name="Changes" EntityType="WebControlsModel.Change" />
         </EntityContainer>
         <Association Name="FK_AdTags_Clients">
           <End Type="WebControlsModel.Client" Role="Client" Multiplicity="1" />
@@ -133,6 +166,27 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <EntityType Name="AuditHistory">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="UserId" Type="Int32" />
+          <Property Name="UserName" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="EntityName" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="EntityId" Type="Int32" />
+          <Property Name="ModificationType" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="Modifications" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="CreateDate" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="Change">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Original" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="Current" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+        </EntityType>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -162,6 +216,29 @@
               <MappingFragment StoreEntitySet="Clients">
                 <ScalarProperty Name="Id" ColumnName="Id" />
                 <ScalarProperty Name="Name" ColumnName="Name" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="AuditHistories">
+            <EntityTypeMapping TypeName="WebControlsModel.AuditHistory">
+              <MappingFragment StoreEntitySet="AuditHistory">
+                <ScalarProperty Name="CreateDate" ColumnName="CreateDate" />
+                <ScalarProperty Name="Modifications" ColumnName="Modifications" />
+                <ScalarProperty Name="ModificationType" ColumnName="ModificationType" />
+                <ScalarProperty Name="EntityId" ColumnName="EntityId" />
+                <ScalarProperty Name="EntityName" ColumnName="EntityName" />
+                <ScalarProperty Name="UserName" ColumnName="UserName" />
+                <ScalarProperty Name="UserId" ColumnName="UserId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Changes">
+            <EntityTypeMapping TypeName="WebControlsModel.Change">
+              <MappingFragment StoreEntitySet="Changes">
+                <ScalarProperty Name="Current" ColumnName="Current" />
+                <ScalarProperty Name="Original" ColumnName="Original" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

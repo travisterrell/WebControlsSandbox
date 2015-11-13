@@ -28,5 +28,7 @@ namespace TypeAhead.Models
         public virtual DbSet<AdTag> AdTags { get; set; }
         public virtual DbSet<AdUnit> AdUnits { get; set; }
         public virtual DbSet<Client> Clients { get; set; }
+        public virtual DbSet<AuditHistory> AuditHistories { get; set; }
+        public virtual DbSet<Change> Changes { get; set; }
     }
 }

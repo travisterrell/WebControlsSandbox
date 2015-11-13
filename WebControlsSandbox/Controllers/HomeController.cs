@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Data.Entity;
+using System.Linq;
 using System.Web.Http.Cors;
 using System.Web.Mvc;
 using TypeAhead.Models;
@@ -13,6 +14,25 @@ namespace TypeAhead.Controllers
         [Route("")]
         public ActionResult Index()
         {
+            var ctx = new WebControlsEntities();
+            ctx.AdTags.Add(new AdTag {ClientId = 1, Name = "TestAdTag123"});
+
+            var adddedEnties = ctx.ChangeTracker.Entries().Where(e => e.State == EntityState.Added).ToList();
+        
+            ctx.SaveChanges();
+
+
+            var adTag1 = ctx.AdTags.Where(a => a.Id == 1).FirstOrDefault();
+            adTag1.Name = "Updated this one again";
+
+            var updatedEnties = ctx.ChangeTracker.Entries().Where(e => e.State == EntityState.Modified).ToList();
+
+
+            //{ "EntityName" : { "EntityPropertyName" : "Name", PreviousValue: "Test Ad Tag 10", CurrnetValue: "Updated this one again" } } }
+            
+            ctx.SaveChanges();
+
+
             ViewBag.Title = "Web Control Sandbox";
 
             return View();
