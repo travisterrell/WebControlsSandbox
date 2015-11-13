@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.Data.Entity.Core.Objects;
 using System.Linq;
 using Newtonsoft.Json;
 using TypeAhead.Models;
@@ -78,7 +79,7 @@ namespace WebControls.Client
                     case EntityState.Deleted:
                         changes.Add(new EntityChanges
                         {
-                            EntityName = t.Entity.GetType().Name,
+                            EntityName = ObjectContext.GetObjectType(t.Entity.GetType()).FullName,
                             ChangeType = t.State,
                             Current = null,
                             Original = t.OriginalValues.PropertyNames.ToDictionary(pn => pn, pn => t.OriginalValues[pn])
@@ -116,11 +117,13 @@ namespace WebControls.Client
                                 {
                                     var currentValue = valueAsObject.ToString();
 
-                                    if (currentValue != originalValue)
+                                    if (!Equals(currentValue, originalValue))
                                     {
                                         var entry = new Modification
                                         {
-                                            PropertyName = key, OriginalValue = originalValue, CurrentValue = currentValue
+                                            PropertyName = key,
+                                            OriginalValue = originalValue,
+                                            CurrentValue = currentValue
                                         };
                                         modifications.Add(entry);
                                     }
@@ -128,22 +131,24 @@ namespace WebControls.Client
                             }
                         }
                         break;
+
                     case EntityState.Added:
-                        foreach (var a in i.Current)
+                        modifications.AddRange(i.Current.Select(a => new Modification
                         {
-                            var entry = new Modification
-                            {
-                                PropertyName = a.Key, OriginalValue = null, CurrentValue = a.Value.ToString()
-                            };
-                            modifications.Add(entry);
-                        }
+                            PropertyName = a.Key,
+                            OriginalValue = null,
+                            CurrentValue = a.Value.ToString()
+                        }));
                         break;
+
                     case EntityState.Deleted:
                         foreach (var d in i.Original)
                         {
                             var entry = new Modification
                             {
-                                PropertyName = d.Key, OriginalValue = d.Value.ToString(), CurrentValue = null
+                                PropertyName = d.Key,
+                                OriginalValue = d.Value.ToString(),
+                                CurrentValue = null
                             };
                             modifications.Add(entry);
                         }
@@ -154,7 +159,13 @@ namespace WebControls.Client
 
                 var auditEntry = new AuditHistory
                 {
-                    CreateDate = DateTime.UtcNow, EntityId = entityId, EntityName = i.EntityName, Modifications = JsonConvert.SerializeObject(modifications), ModificationType = i.ChangeType.ToString(), UserId = 0, UserName = "UserName"
+                    CreateDate = DateTime.UtcNow,
+                    EntityId = entityId,
+                    EntityName = i.EntityName,
+                    Modifications = JsonConvert.SerializeObject(modifications),
+                    ModificationType = i.ChangeType.ToString(),
+                    UserId = 0,
+                    UserName = "UserName"
                 };
                 context.AuditHistories.Add(auditEntry);
             }
