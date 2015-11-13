@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity;
-using System.Data.Entity.Infrastructure;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
 using TypeAhead.Models;
 
@@ -16,224 +12,153 @@ namespace WebControls.Client
     {
         static void Main(string[] args)
         {
+            //-------------------------------------------------------------------------------------------//
+            // Making some context changes...                                                            //
+            //-------------------------------------------------------------------------------------------//
             var context = new WebControlsEntities();
             var adTag = context.AdTags.First(i => i.Id == 1);
             adTag.Name = "UpdateFromConsole";
 
-
-
             var newAdTag = new AdTag
             {
-                Id = 2,
-                Name = "TestAdTag",
+                Name = "New AdTag 1",
                 ClientId = 1
             };
 
             context.AdTags.Add(newAdTag);
-            context.SaveChanges();
-
 
             var anotherNewAdTag = new AdTag
             {
-                Id = 3,
-                Name = "New AdTag",
+                Name = "New AdTag 2",
                 ClientId = 2
             };
 
+            var yetAnotherNewAdTag = new AdTag
+            {
+                Name = "New AdTag 3",
+                ClientId = 3
+            };
+
             context.AdTags.Add(anotherNewAdTag);
+            context.AdTags.Add(yetAnotherNewAdTag);
 
             var adTagToRemove = context.AdTags.First(t => t.Name == "TestAdTag");
             context.AdTags.Remove(adTagToRemove);
-
 
             var adTagChanged = context.AdTags.First(i => i.Id == 1034);
             adTagChanged.Name = Guid.NewGuid().ToString();
             adTagChanged.ClientId = 1;
 
-            context.Entry(adTagChanged).State = EntityState.Modified;
+            var adTagChanged2 = context.AdTags.First(i => i.Id == 1121);
+            adTagChanged2.Name = Guid.NewGuid().ToString();
+            adTagChanged2.ClientId = 1;
+
 
             //-------------------------------------------------------------------------------------------//
-
-
-            var changeInfoAll = context.ChangeTracker.Entries();
+            // Auditing changes                                                                          //
+            //-------------------------------------------------------------------------------------------//
             var changes = new List<EntityChanges>();
-            var modifications = new List<Modification>();
-            var modsJson = string.Empty;
 
+            var changeInfoAll = context.ChangeTracker.Entries().Where(x => x.State == EntityState.Added || x.State == EntityState.Deleted || x.State == EntityState.Modified);
 
-            foreach (var t in changeInfoAll) // Let's consider changing the following conditionals to a switch.
+            foreach (var t in changeInfoAll)
             {
-                if (t.State == EntityState.Added)
+                switch (t.State)
                 {
-                    changes.Add(new EntityChanges
-                    {
-                        EntityName = t.Entity.GetType().Name,
-                        ChangeType = t.State,
-                        Original = null,
-                        Current = t.CurrentValues.PropertyNames.ToDictionary(pn => pn, pn => t.CurrentValues[pn])
-                    });
-                }
-                else if (t.State == EntityState.Deleted)
-                {
-                    changes.Add(new EntityChanges
-                    {
-                        EntityName = t.Entity.GetType().Name,
-                        ChangeType = t.State,
-                        Original = t.OriginalValues.PropertyNames.ToDictionary(pn => pn, pn => t.OriginalValues[pn]),
-                        Current = null
-                    });
-                }
-                else if (t.State == EntityState.Modified)
-                {
-                    changes.Add(new EntityChanges
-                    {
-                        EntityName = t.Entity.GetType().Name,
-                        ChangeType = t.State,
-                        Original = t.OriginalValues.PropertyNames.ToDictionary(pn => pn, pn => t.OriginalValues[pn]),
-                        Current = t.CurrentValues.PropertyNames.ToDictionary(pn => pn, pn => t.CurrentValues[pn])
-                    });
+                    case EntityState.Added:
+                        changes.Add(new EntityChanges
+                        {
+                            EntityName = t.Entity.GetType().Name,
+                            ChangeType = t.State,
+                            Original = null,
+                            Current = t.CurrentValues.PropertyNames.ToDictionary(pn => pn, pn => t.CurrentValues[pn])
+                        });
+                        break;
+
+                    case EntityState.Deleted:
+                        changes.Add(new EntityChanges
+                        {
+                            EntityName = t.Entity.GetType().Name,
+                            ChangeType = t.State,
+                            Current = null,
+                            Original = t.OriginalValues.PropertyNames.ToDictionary(pn => pn, pn => t.OriginalValues[pn])
+                        });
+                        break;
+
+                    case EntityState.Modified:
+                        changes.Add(new EntityChanges
+                        {
+                            EntityName = t.Entity.GetType().BaseType.ToString(),
+                            ChangeType = t.State,
+                            Original = t.OriginalValues.PropertyNames.ToDictionary(pn => pn, pn => t.OriginalValues[pn]),
+                            Current = t.CurrentValues.PropertyNames.ToDictionary(pn => pn, pn => t.CurrentValues[pn])
+                        });
+                        break;
                 }
             }
 
             foreach (var i in changes)
             {
-                if (i.ChangeType == EntityState.Modified)  //Let's consider changing these to a switch.
+                var modifications = new List<Modification>();
+
+                switch (i.ChangeType)
                 {
-                    foreach (var o in i.Original)
-                    {
-                        var key = o.Key;
-                        var originalValue = o.Value.ToString();
-                        object valueAsObject;
-
-                        if (i.Current.TryGetValue(key, out valueAsObject))
+                    case EntityState.Modified:
+                        foreach (var o in i.Original)
                         {
-                            var currentValue = valueAsObject.ToString();
-
-                            if (currentValue != originalValue)
+                            var key = o.Key;
+                            if (key != "RowVersion" || key != "CreateDate" || key != "UpdateDate")
                             {
-                                var entry = new Modification
+                                var originalValue = o.Value.ToString();
+                                object valueAsObject;
+
+                                if (i.Current.TryGetValue(key, out valueAsObject))
                                 {
-                                    PropertyName = key,
-                                    OriginalValue = originalValue,
-                                    CurrentValue = currentValue
-                                };
-                                modifications.Add(entry);
+                                    var currentValue = valueAsObject.ToString();
+
+                                    if (currentValue != originalValue)
+                                    {
+                                        var entry = new Modification
+                                        {
+                                            PropertyName = key, OriginalValue = originalValue, CurrentValue = currentValue
+                                        };
+                                        modifications.Add(entry);
+                                    }
+                                }
                             }
                         }
-                    }
-                }
-                else if (i.ChangeType == EntityState.Added)
-                {
-                    foreach (var a in i.Current)
-                    {
-                        var entry = new Modification
+                        break;
+                    case EntityState.Added:
+                        foreach (var a in i.Current)
                         {
-                            PropertyName = a.Key,
-                            OriginalValue = null,
-                            CurrentValue = a.Value.ToString()
-                        };
-                        modifications.Add(entry);
-                    }
-                }
-                else if (i.ChangeType == EntityState.Deleted)
-                {
-                    foreach (var d in i.Original)
-                    {
-                        var entry = new Modification
+                            var entry = new Modification
+                            {
+                                PropertyName = a.Key, OriginalValue = null, CurrentValue = a.Value.ToString()
+                            };
+                            modifications.Add(entry);
+                        }
+                        break;
+                    case EntityState.Deleted:
+                        foreach (var d in i.Original)
                         {
-                            PropertyName = d.Key,
-                            OriginalValue = d.Value.ToString(),
-                            CurrentValue = null
-                        };
-                        modifications.Add(entry);
-                    }
+                            var entry = new Modification
+                            {
+                                PropertyName = d.Key, OriginalValue = d.Value.ToString(), CurrentValue = null
+                            };
+                            modifications.Add(entry);
+                        }
+                        break;
                 }
 
-                modsJson = JsonConvert.SerializeObject(modifications);
-                int entityId = 0;
-                entityId = Convert.ToInt32(i.Current != null ? i.Current["Id"] : i.Original["Id"]);
+                var entityId = Convert.ToInt32(i.Current != null ? i.Current["Id"] : i.Original["Id"]);
 
                 var auditEntry = new AuditHistory
                 {
-                    CreateDate = DateTime.UtcNow,
-                    EntityId = entityId,
-                    EntityName = i.EntityName,
-                    Modifications = modsJson,
-                    ModificationType = i.ChangeType.ToString(),
-                    UserId = 0,
-                    UserName = "UserName"
+                    CreateDate = DateTime.UtcNow, EntityId = entityId, EntityName = i.EntityName, Modifications = JsonConvert.SerializeObject(modifications), ModificationType = i.ChangeType.ToString(), UserId = 0, UserName = "UserName"
                 };
                 context.AuditHistories.Add(auditEntry);
-                modifications.Clear();
             }
             context.SaveChanges();
         }
     }
 }
-
-
-
-
-
-//var changeModifieds = context.ChangeTracker.Entries()
-//    .WHERE(T => T.STATE == ENTITYSTATE.MODIFIED)
-//    .SELECT(T => NEW
-//    {
-//        ENTITYNAME = T.ENTITY.GETTYPE().NAME,
-//        CHANGETYPE = T.STATE,
-//        ORIGINAL = T.ORIGINALVALUES.PROPERTYNAMES.TODICTIONARY(PN => PN, PN => T.ORIGINALVALUES[PN]), //THIS GUY THROWS AN EXCEPTION IF "ORIGINAL" DOESN'T EXIST (EVEN IF ORIGINALVALUES IS NULL-CHECKED)
-//        CURRENT = T.CURRENTVALUES.PROPERTYNAMES.TODICTIONARY(PN => PN, PN => T.CURRENTVALUES[PN])
-//    })
-
-
-//So now we need to manipulate these dictionaries of key-value pairs, so that we can get useful objects to store in our AuditHistory table.
-
-//var testCurrent = changeInfo.Current;
-//var testPrevious = changeInfo.Original;
-
-//foreach (var i in testCurrent)
-//{
-//    var entry = new AuditHistory
-//    {
-//        Current = i.ToString(),
-//    };
-//    context.AuditHistories.Add(entry);
-//}
-
-//var entry = new AuditHistory();
-
-//foreach (var i in changeInfo.Original)
-//{
-//    entry.Original = i.ToString();
-
-//    foreach (var o in changeInfo.Current)
-//    {
-//        entry.Current = o.ToString();
-//    }
-//    context.AuditHistories.Add(entry);
-//}
-
-
-
-
-//foreach (var entry in changeInfo)
-//{
-
-//    var auditHistory = new AuditHistory
-//    {
-//        Current = entry.Current.ToString(),
-//        Original = entry.Original.ToString()
-//    };
-
-//    context.AuditHistories.Add(auditHistory);
-//}
-
-
-
-
-//public class ChangePair
-//{
-//    public string Key { get; set; }
-//    public object Original { get; set; }
-//    public object Current { get; set; }
-//}
